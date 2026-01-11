@@ -1,3 +1,6 @@
+#include "audio_transform.h"
+#include "words.h"
+
 #include <executorch/extension/module/module.h>
 #include <executorch/extension/tensor/tensor.h>
 
@@ -7,18 +10,24 @@
 using namespace ::executorch::extension;
 
 int main(int argc, char *argv[]) {
-    // Load the model.
     Module module("tiny_kws2.pte");
 
-    // Create an input tensor.
-    float input[1 * 40 * 63];
-    auto tensor = from_blob(input, {1, 40, 63});
+    float input[N_MELS][N_FRAMES];
+    float audio[SAMPLE_RATE];
 
-    // Perform an inference.
+    auto k = load_wav_mono_16k(argv[1], audio, SAMPLE_RATE);
+    if (k < 1) {
+        std::cerr << "File not loaded properly." << std::endl;
+        return -1;
+    }
+
+    compute_log_mel(audio, input);
+
+    auto tensor = from_blob(input, {1, N_MELS, N_FRAMES});
+
     const auto result = module.forward(tensor);
 
     if (result.ok()) {
-        // Retrieve the output data.
         const auto output_tensor = result->at(0).toTensor();
         const int numel = output_tensor.numel(); // Should be 37
         const auto output = output_tensor.const_data_ptr<float>();
@@ -32,6 +41,15 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        std::cout << "Success! Predicted class is: " << max_idx << std::endl;
+        if (max_idx < word_map.size()) {
+            const char* label = word_map[max_idx];
+            std::cout << "Success! Predicted class is: " << label << std::endl;
+        } else {
+            std::cerr << "Index of bounds." << std::endl;
+            return -1;
+        }
+    } else {
+        std::cerr << "Results not ok." << std::endl;
+        return -1;
     }
 }

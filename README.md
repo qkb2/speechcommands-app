@@ -1,44 +1,44 @@
-# ExecuTorch MobileNetV2 Demo C++ Application
+# ExecuTorch + KissFFT SPEECHCOMMANDS C++ Application
 
-This is a simple C++ demo application that uses the ExecuTorch library for MobileNetV2 model inference.
+This is a simple C++ demo application that uses the ExecuTorch library and KissFFT for SPEECHCOMMANDS CNN model inference.
 
 ## Build instructions
 
-0. Export the model. See [mv2/python/README.md](../python/README.md)
+0. Export the model (model.ipynb) or use a PTE model already provided.
 
-1. The ExecuTorch repository is configured as a git submodule at `~/executorch-examples/third-party/executorch/`, with `mv2/cpp/executorch` being a symlink to it. To initialize:
+1. The ExecuTorch repository and KissFFT repository need to be downloaded to third-party directory. 
    ```bash
-    cd ~/executorch-examples/
-    git submodule sync
-    git submodule update --init --recursive
+    mkdir third-party
+    cd third-party
+    git clone https://github.com/pytorch/executorch.git
+    git clone https://github.com/mborgerding/kissfft.git
    ```
+   Tested versions: 39c9781 for kissfft and 8c84780 for executorch.
 
-2. Install dev requirements for ExecuTorch
+2. Install dev requirements for ExecuTorch (venv advised):
 
     ```bash
-    cd ~/executorch-examples/mv2/cpp/executorch
-    pip install -r requirements-dev.txt
+    pip install -r requirements.txt
     ```
 
-3. Build the project:
+3. Build the project (python source must have executorch installed):
    ```bash
-   cd ~/executorch-examples/mv2/cpp
-   chmod +x build.sh
    ./build.sh
    ```
 
 4. Run the demo application:
    ```bash
-   ./build/bin/executorch_mv2_demo_app
+   ./build/bin/speechcommands_app cat_test.wav
    ```
 
 ## Dependencies
 
-- CMake 3.18 or higher
+- CMake 3.29 or higher
 - C++17 compatible compiler
 - ExecuTorch library (release/1.0)
+- KissFFT library
 
 ## Notes
 
 - Make sure you have the correct model file (`.pte`) compatible with ExecuTorch.
-- This demo currently initializes the input tensor with random data. In a real application, you would replace this with actual input data.
+- This app can be tested with wav files (from SPEECHCOMMANDS etc.) - it uses first second of the recording (must be sorted wav) to infer the word.

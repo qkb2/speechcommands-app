@@ -14,7 +14,13 @@ option(EXECUTORCH_BUILD_KERNELS_OPTIMIZED "" ON)
 option(EXECUTORCH_BUILD_XNNPACK "" ON)
 option(EXECUTORCH_XNNPACK_ENABLE_KLEIDI "" OFF)
 
-# Add ExecuTorch subdirectory
+# Set options for KissFFT build
+option(KISSFFT_PKGCONFIG "Build pkg-config files" OFF)
+option(KISSFFT_STATIC "Build kissfft as static (ON) or shared library (OFF)" OFF)
+option(KISSFFT_TEST "Build kissfft tests" OFF)
+option(KISSFFT_TOOLS "Build kissfft command-line tools" OFF)
+
+# Add subdirectories
 add_subdirectory("third-party/executorch")
 add_subdirectory("third-party/kissfft")
 

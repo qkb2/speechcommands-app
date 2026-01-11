@@ -11,4 +11,4 @@ cmake -DCMAKE_BUILD_TYPE=Release ..
 # Build the project
 cmake --build . -j$(nproc)
 
-echo "Build complete! Executable located at: ./bin/executorch_mv2_demo_app"
+echo "Build complete!"
