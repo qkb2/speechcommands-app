@@ -1,3 +1,5 @@
+#include "pico/stdlib.h"
+
 #include <cmath>
 #include <cstdint>
 #include <cstdio>
@@ -8,9 +10,10 @@
 #include <executorch/runtime/executor/program.h>
 #include <executorch/runtime/platform/runtime.h>
 
-#include "audio_transform.h"
+// #include "audio_transform.h"
 #include "model_pte.h"
 #include "words.h"
+#include "test_input_0.h"
 
 using namespace executorch::runtime;
 using executorch::aten::ScalarType;
@@ -18,8 +21,8 @@ using executorch::aten::Tensor;
 using executorch::aten::TensorImpl;
 
 // Allocate memory for ExecuTorch runtime
-static uint8_t method_allocator_pool[64 * 1024];
-static uint8_t activation_pool[64 * 1024];
+static uint8_t method_allocator_pool[160 * 1024];
+static uint8_t activation_pool[160 * 1024];
 
 float run_inference(Method &method, float input_data[N_MELS][N_FRAMES]) {
     TensorImpl::SizesType input_sizes[3] = {1, N_MELS, N_FRAMES};
@@ -60,11 +63,9 @@ float run_inference(Method &method, float input_data[N_MELS][N_FRAMES]) {
     return max_idx; // return predicted class index
 }
 
-int main(int argc, char *argv[]) {
-    if (argc < 2) {
-        printf("Usage: %s <audio_file.wav>\n", argv[0]);
-        return -1;
-    }
+int main() {
+    stdio_init_all();
+    sleep_ms(2000); // wait for USB
 
     runtime_init();
 
@@ -98,26 +99,15 @@ int main(int argc, char *argv[]) {
     }
     Method method = std::move(*method_result);
 
-    // Load WAV and compute features
-    float audio[SAMPLE_RATE];
-    float input[N_MELS][N_FRAMES];
-
-    auto k = load_wav_mono_16k(argv[1], audio, SAMPLE_RATE);
-    if (k < 1) {
-        printf("ERROR: File not loaded properly.\n");
-        return -1;
-    }
-
-    compute_log_mel(audio, input);
-
     // Run inference
-    int predicted_idx = run_inference(method, input);
+    int predicted_idx = run_inference(method, test_mel);
 
     if (predicted_idx >= 0 && predicted_idx < word_map.size()) {
         printf("Success! Predicted class: %s\n", word_map[predicted_idx]);
     } else {
         printf("ERROR: Predicted index out of bounds\n");
     }
+    fflush(stdout);
 
     return 0;
 }
