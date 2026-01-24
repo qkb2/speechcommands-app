@@ -13,15 +13,26 @@ int main(int argc, char *argv[]) {
     Module module("tiny_kws2.pte");
 
     float input[N_MELS][N_FRAMES];
-    float audio[SAMPLE_RATE];
 
-    auto k = load_wav_mono_16k(argv[1], audio, SAMPLE_RATE);
-    if (k < 1) {
-        std::cerr << "File not loaded properly." << std::endl;
+    FILE *f = fopen(argv[1], "rb");
+    if (!f) {
+        std::cerr << "Failed to open input file." << std::endl;
         return -1;
     }
 
-    compute_log_mel(audio, input);
+    size_t read = fread(input, sizeof(float), N_MELS * N_FRAMES, f);
+    fclose(f);
+
+    if (read != N_MELS * N_FRAMES) {
+        std::cerr << "Input size mismatch." << std::endl;
+        return -1;
+    }
+
+    for (int i = 0; i < N_MELS; i++) {
+        for (int j = 0; j < N_FRAMES; j++) {
+            printf("%f ", input[i][j]);
+        }
+    }
 
     auto tensor = from_blob(input, {1, N_MELS, N_FRAMES});
 
@@ -42,7 +53,7 @@ int main(int argc, char *argv[]) {
         }
 
         if (max_idx < word_map.size()) {
-            const char* label = word_map[max_idx];
+            const char *label = word_map[max_idx];
             std::cout << "Success! Predicted class is: " << label << std::endl;
         } else {
             std::cerr << "Index of bounds." << std::endl;
