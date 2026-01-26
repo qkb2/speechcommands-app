@@ -1,3 +1,4 @@
+#include "pico/stdio_usb.h"
 #include "pico/stdlib.h"
 
 #include <cmath>
@@ -11,9 +12,12 @@
 #include <executorch/runtime/platform/runtime.h>
 
 // #include "audio_transform.h"
+#include "constants.h"
 #include "model_pte.h"
 #include "words.h"
-#include "test_input_0.h"
+
+#define INPUT_FLOATS (N_MELS * N_FRAMES)
+#define INPUT_BYTES (INPUT_FLOATS * sizeof(float))
 
 using namespace executorch::runtime;
 using executorch::aten::ScalarType;
@@ -23,6 +27,26 @@ using executorch::aten::TensorImpl;
 // Allocate memory for ExecuTorch runtime
 static uint8_t method_allocator_pool[160 * 1024];
 static uint8_t activation_pool[160 * 1024];
+static float input_mel[N_MELS][N_FRAMES];
+
+bool read_exact_bytes(uint8_t *dst, size_t len) {
+    size_t received = 0;
+    while (received < len) {
+        int c = getchar_timeout_us(5 * 1000 * 1000);
+        if (c == PICO_ERROR_TIMEOUT) {
+            return false;
+        }
+        dst[received++] = (uint8_t)c;
+    }
+    return true;
+}
+
+bool receive_mel_over_usb(float mel[N_MELS][N_FRAMES]) {
+    printf("Waiting for %d bytes...\n", INPUT_BYTES);
+    fflush(stdout);
+
+    return read_exact_bytes(reinterpret_cast<uint8_t *>(mel), INPUT_BYTES);
+}
 
 float run_inference(Method &method, float input_data[N_MELS][N_FRAMES]) {
     TensorImpl::SizesType input_sizes[3] = {1, N_MELS, N_FRAMES};
@@ -100,14 +124,22 @@ int main() {
     Method method = std::move(*method_result);
 
     // Run inference
-    int predicted_idx = run_inference(method, test_mel);
+    while (true) {
+        if (!receive_mel_over_usb(input_mel)) {
+            printf("ERROR: USB receive failed\n");
+            continue;
+        }
 
-    if (predicted_idx >= 0 && predicted_idx < word_map.size()) {
-        printf("Success! Predicted class: %s\n", word_map[predicted_idx]);
-    } else {
-        printf("ERROR: Predicted index out of bounds\n");
+        int predicted_idx = run_inference(method, input_mel);
+
+        if (predicted_idx >= 0 && predicted_idx < word_map.size()) {
+            printf("Predicted: %s\n", word_map[predicted_idx]);
+        } else {
+            printf("ERROR: Prediction out of range\n");
+        }
+
+        fflush(stdout);
     }
-    fflush(stdout);
 
     return 0;
 }
