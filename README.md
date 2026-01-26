@@ -1,6 +1,6 @@
 # ExecuTorch + KissFFT SPEECHCOMMANDS C++ Application
 
-This is a simple C++ demo application that uses the ExecuTorch library and KissFFT for SPEECHCOMMANDS CNN model inference.
+This is a simple C++ demo application that uses the ExecuTorch library for SPEECHCOMMANDS CNN model inference on RPi Pico 2W.
 
 ## Build instructions
 
@@ -11,9 +11,8 @@ This is a simple C++ demo application that uses the ExecuTorch library and KissF
     mkdir third-party
     cd third-party
     git clone https://github.com/pytorch/executorch.git
-    git clone https://github.com/mborgerding/kissfft.git
    ```
-   Tested versions: 39c9781 for kissfft and 8c84780 for executorch.
+   Tested versions: 8c84780 for executorch.
 
 2. Install dev requirements for ExecuTorch (venv advised):
 
@@ -26,17 +25,11 @@ This is a simple C++ demo application that uses the ExecuTorch library and KissF
    ./build.sh
    ```
 
-4. Run the demo application:
-   ```bash
-   ./build/bin/speechcommands_app cat_test.wav
-   ```
-
 ## Dependencies
 
 - CMake 3.29 or higher
 - C++17 compatible compiler
 - ExecuTorch library (release/1.0)
-- KissFFT library
 
 ## Notes
 
