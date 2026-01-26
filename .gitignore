@@ -75,3 +75,6 @@ xcuserdata/
 
 # executorch
 executorch
+
+mel_cache
+speech_commands_data
