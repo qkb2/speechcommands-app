@@ -25,8 +25,8 @@ using executorch::aten::Tensor;
 using executorch::aten::TensorImpl;
 
 // Allocate memory for ExecuTorch runtime
-static uint8_t method_allocator_pool[160 * 1024];
-static uint8_t activation_pool[160 * 1024];
+static uint8_t method_allocator_pool[180 * 1024];
+static uint8_t activation_pool[180 * 1024];
 static float input_mel[N_MELS][N_FRAMES];
 
 bool read_exact_bytes(uint8_t *dst, size_t len) {

@@ -27,7 +27,6 @@ set(C10_USING_CUSTOM_GENERATED_MACROS ON)
 set(EXECUTORCH_ENABLE_LOGGING OFF)
 set(EXECUTORCH_PAL_DEFAULT minimal)
 set(EXECUTORCH_SELECT_OPS_MODEL ${CMAKE_CURRENT_LIST_DIR}/tiny_kws2nq.pte)
-# set(EXECUTORCH_SELECT_OPS_LIST "aten::unsqueeze_copy.out,aten::avg_pool2d.out")
 
 # Set options for KissFFT build
 option(KISSFFT_PKGCONFIG "Build pkg-config files" OFF)
@@ -41,7 +40,6 @@ message(STATUS "Using Python: ${PYTHON_EXECUTABLE}")
 
 # Add subdirectories
 add_subdirectory("third-party/executorch")
-# add_subdirectory("third-party/kissfft")
 
 # Create executable
 file(GLOB_RECURSE APP_SOURCES
@@ -53,7 +51,6 @@ add_executable(speechcommands_app ${APP_SOURCES})
 # Include directories
 target_include_directories(speechcommands_app 
   PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include
-  # third-party/kissfft
   third-party/executorch
   third-party/executorch/runtime/core/portable_type/c10
   ${CMAKE_CURRENT_SOURCE_DIR}/third-party
@@ -73,7 +70,6 @@ target_link_libraries(speechcommands_app PRIVATE
     portable_ops_lib
     portable_kernels
     pico_stdlib
-    # kissfft
 )
 
 # Set output directory
