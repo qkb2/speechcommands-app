@@ -28,12 +28,6 @@ set(EXECUTORCH_ENABLE_LOGGING OFF)
 set(EXECUTORCH_PAL_DEFAULT minimal)
 set(EXECUTORCH_SELECT_OPS_MODEL ${CMAKE_CURRENT_LIST_DIR}/tiny_kws2nq.pte)
 
-# Set options for KissFFT build
-option(KISSFFT_PKGCONFIG "Build pkg-config files" OFF)
-option(KISSFFT_STATIC "Build kissfft as static (ON) or shared library (OFF)" ON)
-option(KISSFFT_TEST "Build kissfft tests" OFF)
-option(KISSFFT_TOOLS "Build kissfft command-line tools" OFF)
-
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
 set(PYTHON_EXECUTABLE ${Python3_EXECUTABLE})
 message(STATUS "Using Python: ${PYTHON_EXECUTABLE}")
