@@ -1,5 +1,5 @@
-#include "audio_transform.h"
 #include "words.h"
+#include "constants.h"
 
 #include <executorch/extension/module/module.h>
 #include <executorch/extension/tensor/tensor.h>
@@ -27,13 +27,7 @@ int main(int argc, char *argv[]) {
         std::cerr << "Input size mismatch." << std::endl;
         return -1;
     }
-
-    for (int i = 0; i < N_MELS; i++) {
-        for (int j = 0; j < N_FRAMES; j++) {
-            printf("%f ", input[i][j]);
-        }
-    }
-
+    
     auto tensor = from_blob(input, {1, N_MELS, N_FRAMES});
 
     const auto result = module.forward(tensor);
@@ -53,8 +47,8 @@ int main(int argc, char *argv[]) {
         }
 
         if (max_idx < word_map.size()) {
-            const char *label = word_map[max_idx];
-            std::cout << "Success! Predicted class is: " << label << std::endl;
+            // const char *label = word_map[max_idx];
+            std::cout << max_idx << std::endl;
         } else {
             std::cerr << "Index of bounds." << std::endl;
             return -1;

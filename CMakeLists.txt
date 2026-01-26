@@ -14,15 +14,8 @@ option(EXECUTORCH_BUILD_KERNELS_OPTIMIZED "" ON)
 option(EXECUTORCH_BUILD_XNNPACK "" ON)
 option(EXECUTORCH_XNNPACK_ENABLE_KLEIDI "" OFF)
 
-# Set options for KissFFT build
-option(KISSFFT_PKGCONFIG "Build pkg-config files" OFF)
-option(KISSFFT_STATIC "Build kissfft as static (ON) or shared library (OFF)" OFF)
-option(KISSFFT_TEST "Build kissfft tests" OFF)
-option(KISSFFT_TOOLS "Build kissfft command-line tools" OFF)
-
 # Add subdirectories
 add_subdirectory("third-party/executorch")
-add_subdirectory("third-party/kissfft")
 
 # Create executable
 file(GLOB_RECURSE APP_SOURCES
@@ -34,7 +27,6 @@ add_executable(speechcommands_app ${APP_SOURCES})
 # Include directories
 target_include_directories(speechcommands_app 
   PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include
-  third-party/kissfft
   third-party/executorch
 )
 
@@ -46,7 +38,6 @@ target_link_libraries(
           extension_tensor
           optimized_native_cpu_ops_lib
           xnnpack_backend
-          kissfft
 )
 
 # Set output directory
