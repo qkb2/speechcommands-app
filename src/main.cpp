@@ -42,7 +42,7 @@ bool read_exact_bytes(uint8_t *dst, size_t len) {
 }
 
 bool receive_mel_over_usb(float mel[N_MELS][N_FRAMES]) {
-    printf("Waiting for %d bytes...\n", INPUT_BYTES);
+    // printf("Waiting for %d bytes...\n", INPUT_BYTES);
     fflush(stdout);
 
     return read_exact_bytes(reinterpret_cast<uint8_t *>(mel), INPUT_BYTES);
@@ -133,7 +133,7 @@ int main() {
         int predicted_idx = run_inference(method, input_mel);
 
         if (predicted_idx >= 0 && predicted_idx < word_map.size()) {
-            printf("Predicted: %s\n", word_map[predicted_idx]);
+            printf("%d\n", predicted_idx);
         } else {
             printf("ERROR: Prediction out of range\n");
         }
