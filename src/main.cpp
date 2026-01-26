@@ -1,9 +1,10 @@
-#include "words.h"
 #include "constants.h"
+#include "words.h"
 
 #include <executorch/extension/module/module.h>
 #include <executorch/extension/tensor/tensor.h>
 
+#include <chrono>
 #include <iostream>
 #include <limits>
 
@@ -27,34 +28,35 @@ int main(int argc, char *argv[]) {
         std::cerr << "Input size mismatch." << std::endl;
         return -1;
     }
-    
+
     auto tensor = from_blob(input, {1, N_MELS, N_FRAMES});
 
-    const auto result = module.forward(tensor);
-
-    if (result.ok()) {
-        const auto output_tensor = result->at(0).toTensor();
-        const int numel = output_tensor.numel(); // Should be 37
-        const auto output = output_tensor.const_data_ptr<float>();
-
-        int max_idx = 0;
-        float max_val = std::numeric_limits<float>::lowest();
-        for (int i = 0; i < numel; i++) {
-            if (output[i] > max_val) {
-                max_val = output[i];
-                max_idx = i;
-            }
-        }
-
-        if (max_idx < word_map.size()) {
-            // const char *label = word_map[max_idx];
-            std::cout << max_idx << std::endl;
-        } else {
-            std::cerr << "Index of bounds." << std::endl;
-            return -1;
-        }
-    } else {
-        std::cerr << "Results not ok." << std::endl;
+    // Warm-up inference (not timed)
+    auto warmup = module.forward(tensor);
+    if (!warmup.ok()) {
+        std::cerr << "Warm-up inference failed." << std::endl;
         return -1;
     }
+
+    // Timed inference loop
+    constexpr int kNumRuns = 1000;
+
+    auto start = std::chrono::high_resolution_clock::now();
+    for (int i = 0; i < kNumRuns; i++) {
+        auto result = module.forward(tensor);
+        if (!result.ok()) {
+            std::cerr << "Inference failed at run " << i << std::endl;
+            return -1;
+        }
+    }
+    auto end = std::chrono::high_resolution_clock::now();
+
+    std::chrono::duration<double, std::milli> total_ms = end - start;
+    double avg_ms = total_ms.count() / kNumRuns;
+
+    std::cout << "Average inference time: " << avg_ms << " ms (" << kNumRuns
+              << " runs)" << std::endl;
+
+
+    return 0;
 }
